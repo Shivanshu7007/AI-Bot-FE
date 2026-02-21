@@ -7,15 +7,12 @@ export default function FloatingChatWidget({
   onClose,
   onToggle
 }) {
+
   const [messages, setMessages] = useState([]);
-  const [animateKey, setAnimateKey] = useState(0);
   const messagesEndRef = useRef(null);
 
   const API_URL = process.env.REACT_APP_API_URL;
 
-  const isMobile = window.innerWidth < 768;
-
-  // ✅ Greeting
   useEffect(() => {
     if (productId && productName) {
       setMessages([
@@ -24,16 +21,17 @@ export default function FloatingChatWidget({
           text: `Hello 👋 I am ready to answer your questions about ${productName}.`
         }
       ]);
-      setAnimateKey(prev => prev + 1);
     }
   }, [productId, productName]);
 
-  // ✅ Auto scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   const sendMessage = async (text) => {
+
     if (!text.trim()) return;
 
     setMessages(prev => [...prev, { sender: "user", text }]);
@@ -50,9 +48,12 @@ export default function FloatingChatWidget({
     }
 
     try {
+
       const response = await fetch(`${API_URL}/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           product_id: productId,
           question: text
@@ -65,7 +66,8 @@ export default function FloatingChatWidget({
         ...prev,
         { sender: "bot", text: data.reply }
       ]);
-    } catch {
+
+    } catch (err) {
       setMessages(prev => [
         ...prev,
         { sender: "bot", text: "⚠️ Server error. Please try again." }
@@ -90,24 +92,22 @@ export default function FloatingChatWidget({
 
       {isOpen && (
         <div
-          key={animateKey}
           style={{
             position: "fixed",
-            bottom: isMobile ? "0" : "30px",
-            right: isMobile ? "0" : "30px",
-            width: isMobile ? "100%" : "380px",
-            height: isMobile ? "100%" : "600px",
+            bottom: "30px",
+            right: "30px",
+            width: "380px",
+            height: "600px",
             background: "#fff",
-            borderRadius: isMobile ? "0" : "22px",
+            borderRadius: "22px",
             boxShadow: "0 30px 60px rgba(0,0,0,0.4)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            zIndex: 1000,
-            animation: "slideUp 0.3s ease"
+            zIndex: 1000
           }}
         >
-          {/* HEADER */}
+
           <div
             style={{
               padding: "18px 20px",
@@ -136,7 +136,6 @@ export default function FloatingChatWidget({
             </button>
           </div>
 
-          {/* CHAT BODY */}
           <div
             style={{
               flex: 1,
@@ -150,8 +149,7 @@ export default function FloatingChatWidget({
                 key={index}
                 style={{
                   display: "flex",
-                  justifyContent:
-                    msg.sender === "user" ? "flex-end" : "flex-start",
+                  justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
                   marginBottom: "15px"
                 }}
               >
@@ -166,9 +164,7 @@ export default function FloatingChatWidget({
                         : "#fff",
                     color: msg.sender === "user" ? "#fff" : "#111",
                     border:
-                      msg.sender === "bot"
-                        ? "1px solid #e5e7eb"
-                        : "none"
+                      msg.sender === "bot" ? "1px solid #e5e7eb" : "none"
                   }}
                 >
                   {msg.text}
@@ -179,7 +175,6 @@ export default function FloatingChatWidget({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* INPUT */}
           <div
             style={{
               padding: "16px",
@@ -258,15 +253,6 @@ export default function FloatingChatWidget({
           💬
         </button>
       )}
-
-      <style>
-        {`
-          @keyframes slideUp {
-            from { transform: translateY(40px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-          }
-        `}
-      </style>
     </>
   );
 }

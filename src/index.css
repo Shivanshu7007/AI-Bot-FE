@@ -236,3 +236,27 @@ font-size: 1.1rem;
 color: #0f172a;
 line-height: 1.4;
 }
+
+/* ================= MOBILE RESPONSIVE FIX ================= */
+
+@media (max-width: 768px) {
+
+  /* Product slider spacing fix */
+  .products-grid {
+    padding-left: 15px;
+  }
+
+  /* Product card thoda small */
+  .product-card {
+    min-width: 280px;
+    max-width: 280px;
+  }
+
+  /* Chat widget full width on mobile */
+  .floating-chat-mobile-fix {
+    width: 95% !important;
+    right: 2.5% !important;
+    bottom: 15px !important;
+  }
+
+}
