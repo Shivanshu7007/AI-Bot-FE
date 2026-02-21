@@ -1,272 +1,3 @@
-// import { useState, useEffect, useRef } from "react";
-
-// export default function FloatingChatWidget({
-//   productId,
-//   productName,
-//   isOpen,
-//   onClose,
-//   onToggle
-// }) {
-
-//   const [messages, setMessages] = useState([]);
-//   const [animateKey, setAnimateKey] = useState(0);
-//   const messagesEndRef = useRef(null);
-
-//   const API_URL = process.env.REACT_APP_API_URL;
-
-//   useEffect(() => {
-//     if (productId && productName) {
-//       setMessages([
-//         {
-//           sender: "bot",
-//           text: `Hello 👋 I am ready to answer your questions about ${productName}.`
-//         }
-//       ]);
-//       setAnimateKey(prev => prev + 1);
-//     }
-//   }, [productId, productName]);
-
-//   useEffect(() => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-//   }, [messages]);
-
-//   const sendMessage = async (text) => {
-
-//     if (!text.trim()) return;
-
-//     setMessages(prev => [...prev, { sender: "user", text }]);
-
-//     if (!productId) {
-//       setMessages(prev => [
-//         ...prev,
-//         {
-//           sender: "bot",
-//           text: "I am a product-specific chatbot. Please scan the QR code from your kit to continue."
-//         }
-//       ]);
-//       return;
-//     }
-
-//     try {
-
-//       const response = await fetch(`${API_URL}/chat`, {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({
-//           product_id: productId,
-//           question: text
-//         })
-//       });
-
-//       const data = await response.json();
-
-//       setMessages(prev => [
-//         ...prev,
-//         { sender: "bot", text: data.reply }
-//       ]);
-
-//     } catch (err) {
-//       setMessages(prev => [
-//         ...prev,
-//         { sender: "bot", text: "⚠️ Server error. Please try again." }
-//       ]);
-//     }
-//   };
-
-//   return (
-//     <>
-//       {isOpen && (
-//         <div
-//           style={{
-//             position: "fixed",
-//             inset: 0,
-//             background: "rgba(0,0,0,0.4)",
-//             backdropFilter: "blur(6px)",
-//             zIndex: 999
-//           }}
-//           onClick={onClose}
-//         />
-//       )}
-
-//       {isOpen && (
-//         <div
-//           key={animateKey}
-//           style={{
-//             position: "fixed",
-//             bottom: "30px",
-//             right: "30px",
-//             width: "380px",
-//             height: "600px",
-//             background: "#fff",
-//             borderRadius: "22px",
-//             boxShadow: "0 30px 60px rgba(0,0,0,0.4)",
-//             display: "flex",
-//             flexDirection: "column",
-//             overflow: "hidden",
-//             zIndex: 1000,
-//             animation: "slideUp 0.3s ease"
-//           }}
-//         >
-
-//           <div
-//             style={{
-//               padding: "18px 20px",
-//               background: "linear-gradient(135deg,#0f3d4a,#1b5f63,#9c4f2f)",
-//               color: "white",
-//               display: "flex",
-//               justifyContent: "space-between",
-//               alignItems: "center"
-//             }}
-//           >
-//             <span style={{ fontWeight: 600 }}>
-//               {productName || "Cellogen Therapeutics Bot"}
-//             </span>
-
-//             <button
-//               onClick={onClose}
-//               style={{
-//                 background: "transparent",
-//                 border: "none",
-//                 color: "white",
-//                 fontSize: "20px",
-//                 cursor: "pointer"
-//               }}
-//             >
-//               —
-//             </button>
-//           </div>
-
-//           <div
-//             style={{
-//               flex: 1,
-//               padding: "20px",
-//               overflowY: "auto",
-//               background: "#f4f6f8"
-//             }}
-//           >
-//             {messages.map((msg, index) => (
-//               <div
-//                 key={index}
-//                 style={{
-//                   display: "flex",
-//                   justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
-//                   marginBottom: "15px"
-//                 }}
-//               >
-//                 <div
-//                   style={{
-//                     padding: "14px 18px",
-//                     borderRadius: "18px",
-//                     maxWidth: "75%",
-//                     background:
-//                       msg.sender === "user"
-//                         ? "linear-gradient(135deg,#1b5f63,#0f3d4a)"
-//                         : "#fff",
-//                     color: msg.sender === "user" ? "#fff" : "#111",
-//                     border:
-//                       msg.sender === "bot" ? "1px solid #e5e7eb" : "none"
-//                   }}
-//                 >
-//                   {msg.text}
-//                 </div>
-//               </div>
-//             ))}
-
-//             <div ref={messagesEndRef} />
-//           </div>
-
-//           <div
-//             style={{
-//               padding: "16px",
-//               borderTop: "1px solid #e5e7eb",
-//               background: "#fff"
-//             }}
-//           >
-//             <div
-//               style={{
-//                 display: "flex",
-//                 border: "2px solid #e2e8f0",
-//                 borderRadius: "30px",
-//                 padding: "6px"
-//               }}
-//             >
-//               <input
-//                 type="text"
-//                 placeholder="Ask a question"
-//                 style={{
-//                   flex: 1,
-//                   border: "none",
-//                   outline: "none",
-//                   padding: "10px 15px"
-//                 }}
-//                 onKeyDown={(e) => {
-//                   if (e.key === "Enter") {
-//                     sendMessage(e.target.value);
-//                     e.target.value = "";
-//                   }
-//                 }}
-//               />
-
-//               <button
-//                 style={{
-//                   width: "42px",
-//                   height: "42px",
-//                   borderRadius: "50%",
-//                   border: "none",
-//                   background: "#1b5f63",
-//                   color: "#fff",
-//                   cursor: "pointer"
-//                 }}
-//                 onClick={(e) => {
-//                   const input =
-//                     e.currentTarget.parentElement.querySelector("input");
-//                   sendMessage(input.value);
-//                   input.value = "";
-//                 }}
-//               >
-//                 →
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {!isOpen && (
-//         <button
-//           onClick={onToggle}
-//           style={{
-//             position: "fixed",
-//             bottom: "30px",
-//             right: "30px",
-//             width: "60px",
-//             height: "60px",
-//             borderRadius: "50%",
-//             border: "none",
-//             background: "linear-gradient(135deg,#1b5f63,#9c4f2f)",
-//             color: "white",
-//             fontSize: "22px",
-//             cursor: "pointer",
-//             boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
-//             zIndex: 1000
-//           }}
-//         >
-//           💬
-//         </button>
-//       )}
-
-//       <style>
-//         {`
-//           @keyframes slideUp {
-//             from { transform: translateY(40px); opacity: 0; }
-//             to { transform: translateY(0); opacity: 1; }
-//           }
-//         `}
-//       </style>
-//     </>
-//   );
-// }
 import { useState, useEffect, useRef } from "react";
 
 export default function FloatingChatWidget({
@@ -276,42 +7,52 @@ export default function FloatingChatWidget({
   onClose,
   onToggle
 }) {
-
   const [messages, setMessages] = useState([]);
   const [animateKey, setAnimateKey] = useState(0);
   const messagesEndRef = useRef(null);
 
-  const API_URL = "https://ai-bot-backend-d30u.onrender.com";
+  const API_URL = process.env.REACT_APP_API_URL;
 
+  const isMobile = window.innerWidth < 768;
+
+  // ✅ Greeting
   useEffect(() => {
-    if (productId) {
+    if (productId && productName) {
       setMessages([
         {
           sender: "bot",
-          text: `Hello 👋 I am ready to answer your questions.`
+          text: `Hello 👋 I am ready to answer your questions about ${productName}.`
         }
       ]);
       setAnimateKey(prev => prev + 1);
     }
-  }, [productId]);
+  }, [productId, productName]);
 
+  // ✅ Auto scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async (text) => {
-
     if (!text.trim()) return;
 
     setMessages(prev => [...prev, { sender: "user", text }]);
 
-    try {
+    if (!productId) {
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: "bot",
+          text: "I am a product-specific chatbot. Please scan the QR code from your kit to continue."
+        }
+      ]);
+      return;
+    }
 
+    try {
       const response = await fetch(`${API_URL}/chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_id: productId,
           question: text
@@ -324,8 +65,7 @@ export default function FloatingChatWidget({
         ...prev,
         { sender: "bot", text: data.reply }
       ]);
-
-    } catch (err) {
+    } catch {
       setMessages(prev => [
         ...prev,
         { sender: "bot", text: "⚠️ Server error. Please try again." }
@@ -353,24 +93,25 @@ export default function FloatingChatWidget({
           key={animateKey}
           style={{
             position: "fixed",
-            bottom: "30px",
-            right: "30px",
-            width: "380px",
-            height: "600px",
+            bottom: isMobile ? "0" : "30px",
+            right: isMobile ? "0" : "30px",
+            width: isMobile ? "100%" : "380px",
+            height: isMobile ? "100%" : "600px",
             background: "#fff",
-            borderRadius: "22px",
+            borderRadius: isMobile ? "0" : "22px",
             boxShadow: "0 30px 60px rgba(0,0,0,0.4)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            zIndex: 1000
+            zIndex: 1000,
+            animation: "slideUp 0.3s ease"
           }}
         >
-
+          {/* HEADER */}
           <div
             style={{
               padding: "18px 20px",
-              background: "#1b5f63",
+              background: "linear-gradient(135deg,#0f3d4a,#1b5f63,#9c4f2f)",
               color: "white",
               display: "flex",
               justifyContent: "space-between",
@@ -395,6 +136,7 @@ export default function FloatingChatWidget({
             </button>
           </div>
 
+          {/* CHAT BODY */}
           <div
             style={{
               flex: 1,
@@ -408,7 +150,8 @@ export default function FloatingChatWidget({
                 key={index}
                 style={{
                   display: "flex",
-                  justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
+                  justifyContent:
+                    msg.sender === "user" ? "flex-end" : "flex-start",
                   marginBottom: "15px"
                 }}
               >
@@ -419,11 +162,13 @@ export default function FloatingChatWidget({
                     maxWidth: "75%",
                     background:
                       msg.sender === "user"
-                        ? "#1b5f63"
+                        ? "linear-gradient(135deg,#1b5f63,#0f3d4a)"
                         : "#fff",
                     color: msg.sender === "user" ? "#fff" : "#111",
                     border:
-                      msg.sender === "bot" ? "1px solid #e5e7eb" : "none"
+                      msg.sender === "bot"
+                        ? "1px solid #e5e7eb"
+                        : "none"
                   }}
                 >
                   {msg.text}
@@ -434,6 +179,7 @@ export default function FloatingChatWidget({
             <div ref={messagesEndRef} />
           </div>
 
+          {/* INPUT */}
           <div
             style={{
               padding: "16px",
@@ -441,14 +187,22 @@ export default function FloatingChatWidget({
               background: "#fff"
             }}
           >
-            <div style={{ display: "flex" }}>
+            <div
+              style={{
+                display: "flex",
+                border: "2px solid #e2e8f0",
+                borderRadius: "30px",
+                padding: "6px"
+              }}
+            >
               <input
                 type="text"
                 placeholder="Ask a question"
                 style={{
                   flex: 1,
-                  border: "1px solid #ccc",
-                  padding: "10px"
+                  border: "none",
+                  outline: "none",
+                  padding: "10px 15px"
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -460,11 +214,13 @@ export default function FloatingChatWidget({
 
               <button
                 style={{
-                  marginLeft: "10px",
-                  padding: "10px 16px",
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "50%",
+                  border: "none",
                   background: "#1b5f63",
                   color: "#fff",
-                  border: "none"
+                  cursor: "pointer"
                 }}
                 onClick={(e) => {
                   const input =
@@ -473,7 +229,7 @@ export default function FloatingChatWidget({
                   input.value = "";
                 }}
               >
-                Send
+                →
               </button>
             </div>
           </div>
@@ -491,15 +247,26 @@ export default function FloatingChatWidget({
             height: "60px",
             borderRadius: "50%",
             border: "none",
-            background: "#1b5f63",
+            background: "linear-gradient(135deg,#1b5f63,#9c4f2f)",
             color: "white",
             fontSize: "22px",
-            cursor: "pointer"
+            cursor: "pointer",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+            zIndex: 1000
           }}
         >
           💬
         </button>
       )}
+
+      <style>
+        {`
+          @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        `}
+      </style>
     </>
   );
 }
