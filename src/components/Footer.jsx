@@ -1,9 +1,28 @@
-// import React from "react";
+import React from "react";
 
 export default function Footer() {
   return (
-    <footer id="contact-section" style={{ marginTop: "80px", background: "#0f3d5a", color: "white", padding: "40px 20px" }}>
-      <div style={{ textAlign: "center" }}>
+    <footer className="footer">
+      <div className="footer-top">
+
+        <div className="footer-item">
+          <h4>Call for Quotation</h4>
+          <p>0120-3139174</p>
+        </div>
+
+        <div className="footer-item">
+          <h4>Operation Hours</h4>
+          <p>Mon to Sat 10:00AM to 06:00PM</p>
+        </div>
+
+        <div className="footer-item">
+          <h4>Email Us</h4>
+          <p>contact@cellogenbiotech.com</p>
+        </div>
+
+      </div>
+
+      <div className="footer-bottom">
         © {new Date().getFullYear()} All rights reserved to Cellogen Therapeutics
       </div>
     </footer>

@@ -1,3 +1,5 @@
+/* ================= GLOBAL RESET ================= */
+
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +12,8 @@ body {
   color: #1e293b;
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
+
 .navbar {
   position: fixed;
   top: 0;
@@ -19,6 +22,7 @@ body {
   height: 65px;
   padding: 0 2rem;
   background: linear-gradient(135deg, #0f3d4a, #1b5f63, #9c4f2f);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,17 +38,28 @@ body {
 .nav-links {
   display: flex;
   gap: 20px;
+  align-items: center;
 }
 
-.nav-link-btn,
-.btn-contact {
+.nav-link-btn {
   color: white;
   background: transparent;
   border: none;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-/* HERO */
+.btn-contact {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1px solid rgba(255,255,255,0.4);
+  cursor: pointer;
+}
+
+/* ================= HERO SECTION ================= */
+
 .hero-wrapper {
   padding-top: 150px;
   padding-bottom: 80px;
@@ -52,26 +67,108 @@ body {
   background: linear-gradient(#f0f9ff, #e0f2fe);
 }
 
-/* PRODUCTS */
+.hero-wrapper h1 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #0f172a;
+}
+
+.hero-wrapper p {
+  max-width: 700px;
+  margin: auto;
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+/* FEATURE BOX */
+
+.feature-box {
+  padding: 20px 30px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  text-align: center;
+  width: 200px;
+  transition: 0.2s;
+}
+
+.feature-box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+}
+
+/* ================= PRODUCTS ================= */
+
 .products-section {
   padding: 80px 0;
   text-align: center;
 }
 
+.section-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+
+/* SLIDER CONTROLS */
+
+.slider-controls {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  margin: 25px 0;
+}
+
+.slider-controls button {
+  font-size: 24px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.2s;
+}
+
+.slider-controls button:hover {
+  transform: translateY(-3px);
+}
+
+/* PRODUCTS GRID */
+
 .products-grid {
-  margin-top: 40px;
+  margin-top: 30px;
   display: flex;
   overflow-x: auto;
   gap: 25px;
-  padding: 10px;
+  padding: 10px 40px;
 }
+
+.products-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.products-grid::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+}
+
+/* PRODUCT CARD */
 
 .product-card {
   min-width: 320px;
   max-width: 320px;
   background: white;
   border-radius: 16px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
+  flex-shrink: 0;
+  transition: 0.3s;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
 }
 
 .product-image {
@@ -82,6 +179,19 @@ body {
 
 .product-content {
   padding: 20px;
+  text-align: left;
+}
+
+.product-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.product-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 5px;
+  margin-bottom: 15px;
 }
 
 .btn-chat {
@@ -94,11 +204,13 @@ body {
   cursor: pointer;
 }
 
-/* CHAT */
+/* ================= CHAT ================= */
+
 .chat-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
   z-index: 999;
 }
 
@@ -108,19 +220,31 @@ body {
   right: 30px;
   width: 380px;
   height: 600px;
-  background: white;
+  background: #fff;
   border-radius: 22px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   z-index: 1000;
 }
 
 .chat-header {
-  padding: 18px;
+  padding: 18px 20px;
   background: linear-gradient(135deg,#0f3d4a,#1b5f63,#9c4f2f);
   color: white;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.chat-minimize {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 26px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .chat-body {
@@ -131,15 +255,19 @@ body {
 }
 
 .chat-row {
+  display: flex;
   margin-bottom: 15px;
 }
 
 .chat-row.user {
-  text-align: right;
+  justify-content: flex-end;
+}
+
+.chat-row.bot {
+  justify-content: flex-start;
 }
 
 .chat-bubble {
-  display: inline-block;
   padding: 14px 18px;
   border-radius: 18px;
   max-width: 75%;
@@ -147,17 +275,18 @@ body {
 
 .chat-row.user .chat-bubble {
   background: linear-gradient(135deg,#1b5f63,#0f3d4a);
-  color: white;
+  color: #fff;
 }
 
 .chat-row.bot .chat-bubble {
-  background: white;
+  background: #fff;
   border: 1px solid #e5e7eb;
 }
 
 .chat-input-wrapper {
   padding: 16px;
   border-top: 1px solid #e5e7eb;
+  background: #fff;
 }
 
 .chat-input {
@@ -170,24 +299,79 @@ body {
 .chat-input input {
   flex: 1;
   border: none;
-  padding: 10px;
+  outline: none;
+  padding: 10px 15px;
 }
 
 .chat-input button {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #1b5f63;
-  color: white;
   border: none;
+  background: #1b5f63;
+  color: #fff;
+  cursor: pointer;
 }
 
-/* MOBILE */
+.chat-toggle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg,#1b5f63,#9c4f2f);
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  z-index: 1000;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+  margin-top: 80px;
+  background: #0f3d5a;
+  color: white;
+  padding: 50px 20px;
+}
+
+.footer-top {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;   /* parallel layout */
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.footer-item h4 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.footer-item p {
+  opacity: 0.85;
+  font-size: 1rem;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* MOBILE RESPONSIVE */
+
 @media (max-width: 768px) {
-  .chat-widget {
-    width: 95%;
-    right: 2.5%;
-    bottom: 15px;
-    height: 90vh;
+  .footer-top {
+    flex-direction: column;
+    gap: 25px;
   }
 }

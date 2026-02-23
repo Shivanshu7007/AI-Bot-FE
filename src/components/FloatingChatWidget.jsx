@@ -35,10 +35,7 @@ export default function FloatingChatWidget({
     if (!productId) {
       setMessages(prev => [
         ...prev,
-        {
-          sender: "bot",
-          text: "Please scan the QR code from your kit."
-        }
+        { sender: "bot", text: "Please scan the QR code from your kit." }
       ]);
       return;
     }
@@ -69,21 +66,24 @@ export default function FloatingChatWidget({
 
   return (
     <>
+      {/* OVERLAY */}
       {isOpen && <div className="chat-overlay" onClick={onClose} />}
 
+      {/* CHAT WINDOW */}
       {isOpen && (
         <div className="chat-widget">
           <div className="chat-header">
             <span>{productName || "Cellogen Therapeutics Bot"}</span>
-            <button onClick={onClose}>—</button>
+
+            {/* SIMPLE MINIMIZE LINE */}
+            <button className="chat-minimize" onClick={onClose}>
+              —
+            </button>
           </div>
 
           <div className="chat-body">
             {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`chat-row ${msg.sender}`}
-              >
+              <div key={index} className={`chat-row ${msg.sender}`}>
                 <div className="chat-bubble">
                   {msg.text}
                 </div>
@@ -119,6 +119,7 @@ export default function FloatingChatWidget({
         </div>
       )}
 
+      {/* FLOATING BUTTON */}
       {!isOpen && (
         <button className="chat-toggle" onClick={onToggle}>
           💬
