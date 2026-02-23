@@ -7,7 +7,7 @@ export default function Footer() {
 
         <div className="footer-item">
           <h4>Call for Quotation</h4>
-          <p>0120-3139174</p>
+          <p>+91-9217371321</p>
         </div>
 
         <div className="footer-item">
