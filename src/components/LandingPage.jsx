@@ -8,7 +8,7 @@ export default function LandingPage({ onOpenChat }) {
     fetch(process.env.REACT_APP_API_URL + "/api/products", { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
