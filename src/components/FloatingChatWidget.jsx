@@ -21,7 +21,7 @@ export default function FloatingChatWidget({
       setMessages([
         {
           sender: "bot",
-          text: `Hello 👋 I am ready to answer your questions about ${productName || "this product"}.`
+          text: `Hello! I'm ready to answer your questions about ${productName || "this product"}.`
         }
       ]);
     }
@@ -53,7 +53,11 @@ export default function FloatingChatWidget({
       const response = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: productId, question: trimmed }),
+        body: JSON.stringify({
+          product_id: productId,
+          question: trimmed,
+          history: messages.slice(-6)
+        }),
         signal: controller.signal
       });
 
@@ -90,58 +94,94 @@ export default function FloatingChatWidget({
 
   return (
     <>
-      {/* OVERLAY */}
-      {isOpen && <div className="chat-overlay" onClick={onClose} />}
+      {/* Overlay — always mounted, display controls visibility */}
+      <div
+        className="chat-overlay"
+        onClick={onClose}
+        style={{ display: isOpen ? "block" : "none" }}
+      />
 
-      {/* CHAT WINDOW */}
-      {isOpen && (
-        <div className="chat-widget">
-          <div className="chat-header">
-            <span>{productName || "Cellogen Therapeutics Bot"}</span>
-            <button className="chat-minimize" onClick={onClose}>—</button>
-          </div>
-
-          <div className="chat-body">
-            {messages.map((msg, index) => (
-              <div key={index} className={`chat-row ${msg.sender}`}>
-                <div className="chat-bubble">{msg.text}</div>
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="chat-row bot">
-                <div className="chat-bubble chat-typing">
-                  <span>.</span><span>.</span><span>.</span>
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div className="chat-input-wrapper">
-            <div className="chat-input">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder={isLoading ? "Waiting for response..." : "Ask a question"}
-                disabled={isLoading}
-                onKeyDown={handleKeyDown}
-              />
-              <button onClick={handleSendClick} disabled={isLoading}>
-                →
-              </button>
+      {/* Chat widget — always mounted, display controls visibility */}
+      <div
+        className="chat-widget"
+        style={{ display: isOpen ? "flex" : "none" }}
+      >
+        {/* Header */}
+        <div className="chat-header">
+          <div className="chat-header-left">
+            <div className="chat-avatar">🤖</div>
+            <div className="chat-header-info">
+              <span className="chat-header-title">
+                {productName || "QC Kit Assistant"}
+              </span>
+              <span className="chat-header-status">
+                <span className="chat-status-dot" />
+                Online
+              </span>
             </div>
           </div>
+          <button className="chat-minimize" onClick={onClose}>✕</button>
         </div>
-      )}
 
-      {/* FLOATING BUTTON */}
-      {!isOpen && (
-        <button className="chat-toggle" onClick={onToggle}>
-          💬
-        </button>
-      )}
+        {/* Messages body */}
+        <div className="chat-body">
+          {messages.map((msg, index) => (
+            <div key={index} className={`chat-row ${msg.sender}`}>
+              {msg.sender === "bot" && (
+                <div className="chat-bot-icon">AI</div>
+              )}
+              <div
+                className="chat-bubble"
+                style={{ whiteSpace: "pre-wrap" }}
+              >
+                {msg.text.replace(/^- /gm, "• ")}
+              </div>
+            </div>
+          ))}
+
+          {/* Typing indicator */}
+          {isLoading && (
+            <div className="chat-row bot">
+              <div className="chat-bot-icon">AI</div>
+              <div className="chat-bubble chat-typing">
+                <span /><span /><span />
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input area */}
+        <div className="chat-input-wrapper">
+          <div className="chat-input">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder={
+                isLoading
+                  ? "Waiting for response..."
+                  : "Ask a question about this product..."
+              }
+              disabled={isLoading}
+              onKeyDown={handleKeyDown}
+            />
+            <button onClick={handleSendClick} disabled={isLoading}>
+              ➤
+            </button>
+          </div>
+          <p className="chat-input-hint">Powered by Cellogen Biotech</p>
+        </div>
+      </div>
+
+      {/* Floating toggle — always mounted, display controls visibility */}
+      <button
+        className="chat-toggle"
+        onClick={onToggle}
+        style={{ display: isOpen ? "none" : "flex" }}
+      >
+        🤖
+      </button>
     </>
   );
 }

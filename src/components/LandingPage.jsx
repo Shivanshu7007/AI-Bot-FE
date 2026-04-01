@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 export default function LandingPage({ onOpenChat }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useScrollReveal([products]);
 
   useEffect(() => {
     fetch(process.env.REACT_APP_API_URL + "/api/products", { cache: "no-store" })
@@ -26,24 +29,44 @@ export default function LandingPage({ onOpenChat }) {
 
   return (
     <section id="kits-section" className="products-section">
-      <h2 className="section-title">Our Therapeutic Kits</h2>
+      <div className="section-header" data-animate>
+        <span className="section-eyebrow">Our Catalog</span>
+        <h2 className="section-title">Therapeutic Kits</h2>
+        <p className="section-subtitle">
+          Precision-engineered research kits designed for cutting-edge biomedical applications.
+        </p>
+      </div>
 
-      {loading && <p style={{ marginTop: "20px" }}>Loading products...</p>}
-
-      {!loading && products.length === 0 && (
-        <p style={{ marginTop: "20px" }}>No products available.</p>
-      )}
-
-      {/* SLIDER CONTROLS */}
-      <div className="slider-controls">
+      <div className="slider-controls" data-animate>
         <button onClick={scrollLeft}>←</button>
         <button onClick={scrollRight}>→</button>
       </div>
 
-      {/* PRODUCTS */}
       <div className="products-grid">
-        {products.map(product => (
-          <div className="product-card" key={product.id}>
+        {/* Skeleton loading state */}
+        {loading && (
+          <>
+            <div className="skeleton-card" />
+            <div className="skeleton-card" style={{ animationDelay: "0.15s" }} />
+            <div className="skeleton-card" style={{ animationDelay: "0.3s" }} />
+          </>
+        )}
+
+        {/* Empty state */}
+        {!loading && products.length === 0 && (
+          <p style={{ color: "var(--muted)", padding: "20px 48px" }}>
+            No products available.
+          </p>
+        )}
+
+        {/* Product cards */}
+        {!loading && products.map((product, index) => (
+          <div
+            className="product-card"
+            key={product.id}
+            data-animate="scale"
+            style={{ transitionDelay: `${index * 0.1}s` }}
+          >
             {product.image_url ? (
               <img
                 src={product.image_url}
@@ -51,12 +74,11 @@ export default function LandingPage({ onOpenChat }) {
                 className="product-image"
               />
             ) : (
-              <div className="product-image-placeholder">
-                No Image
-              </div>
+              <div className="product-image-placeholder">🧪</div>
             )}
 
             <div className="product-content">
+              <span className="product-tag">Therapeutic Kit</span>
               <h3 className="product-title">{product.name}</h3>
               <p className="product-desc">{product.description}</p>
 
@@ -64,7 +86,7 @@ export default function LandingPage({ onOpenChat }) {
                 className="btn-chat"
                 onClick={() => onOpenChat(product.id, product.name)}
               >
-                Chat with this Product
+                💬 Chat with this Product
               </button>
             </div>
           </div>
