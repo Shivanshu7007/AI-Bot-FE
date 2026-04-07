@@ -1118,6 +1118,77 @@ body {
   justify-content: flex-start;
 }
 
+/* Safety disclaimer banner */
+.chat-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #78350f;
+}
+
+.chat-disclaimer-icon {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  margin-top: 1px;
+}
+
+/* Bot bubble group — wraps bubble + escalation buttons */
+.chat-bubble-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 78%;
+}
+
+.chat-bubble-group .chat-bubble {
+  max-width: 100%;
+}
+
+/* Escalation buttons shown below fallback bot messages */
+.chat-escalation-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chat-escalation-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.chat-escalation-btn:hover {
+  opacity: 0.82;
+}
+
+.chat-escalation-email {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--sky-dark);
+}
+
+.chat-escalation-whatsapp {
+  background: var(--emerald);
+  border: 1.5px solid var(--emerald);
+  color: #fff;
+}
+
 /* Bot icon */
 .chat-bot-icon {
   width: 28px;

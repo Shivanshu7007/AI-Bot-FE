@@ -2,6 +2,12 @@ import { useState, useEffect, useRef } from "react";
 
 const FETCH_TIMEOUT_MS = 30000;
 
+const SUPPORT_EMAIL    = "contact@cellogenbiotech.com";
+const SUPPORT_WHATSAPP = "919217371321";
+
+const isFallbackReply = (text) =>
+  text.startsWith("I was not able to find this in the product documentation");
+
 export default function FloatingChatWidget({
   productId,
   productName,
@@ -19,6 +25,10 @@ export default function FloatingChatWidget({
   useEffect(() => {
     if (productId) {
       setMessages([
+        {
+          sender: "disclaimer",
+          text: "This assistant is AI-powered and answers from product documentation only. Always verify critical steps against the physical product insert. For safety or clinical decisions, contact Cellogen directly."
+        },
         {
           sender: "bot",
           text: `Hello! I'm ready to answer your questions about ${productName || "this product"}.`
@@ -63,9 +73,22 @@ export default function FloatingChatWidget({
 
       const data = await response.json();
 
+      if (data.status === "no_knowledge_base") {
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: "bot",
+            text: "Product documentation for this kit has not been uploaded yet. Please reach out to Cellogen for assistance.",
+            showEscalation: true
+          }
+        ]);
+        return;
+      }
+
+      const reply = data.reply || "No response received.";
       setMessages(prev => [
         ...prev,
-        { sender: "bot", text: data.reply || "No response received." }
+        { sender: "bot", text: reply, showEscalation: isFallbackReply(reply) }
       ]);
     } catch (err) {
       const msg = err.name === "AbortError"
@@ -126,17 +149,46 @@ export default function FloatingChatWidget({
         {/* Messages body */}
         <div className="chat-body">
           {messages.map((msg, index) => (
-            <div key={index} className={`chat-row ${msg.sender}`}>
-              {msg.sender === "bot" && (
-                <div className="chat-bot-icon">AI</div>
-              )}
-              <div
-                className="chat-bubble"
-                style={{ whiteSpace: "pre-wrap" }}
-              >
-                {msg.text.replace(/^- /gm, "• ")}
+            msg.sender === "disclaimer" ? (
+              <div key={index} className="chat-disclaimer">
+                <span className="chat-disclaimer-icon">⚠️</span>
+                {msg.text}
               </div>
-            </div>
+            ) : (
+              <div key={index} className={`chat-row ${msg.sender}`}>
+                {msg.sender === "bot" && (
+                  <div className="chat-bot-icon">AI</div>
+                )}
+                <div className={msg.sender === "bot" ? "chat-bubble-group" : ""}>
+                  <div
+                    className="chat-bubble"
+                    style={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {msg.text.replace(/^- /gm, "• ")}
+                  </div>
+                  {msg.showEscalation && (
+                    <div className="chat-escalation-buttons">
+                      <a
+                        href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Product Query - ${productName || "Kit"}`)}`}
+                        className="chat-escalation-btn chat-escalation-email"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        ✉ Email Cellogen Support
+                      </a>
+                      <a
+                        href={`https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(`Hi, I need help with my ${productName || "Cellogen"} kit.`)}`}
+                        className="chat-escalation-btn chat-escalation-whatsapp"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        💬 WhatsApp Us
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
           ))}
 
           {/* Typing indicator */}
