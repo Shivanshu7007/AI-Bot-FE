@@ -8,6 +8,10 @@ const SUPPORT_WHATSAPP = "919217371321";
 const isFallbackReply = (text) =>
   text.startsWith("I was not able to find this in the product documentation");
 
+function makeMessage(sender, text, extra = {}) {
+  return { id: crypto.randomUUID(), sender, text, ...extra };
+}
+
 export default function FloatingChatWidget({
   productId,
   productName,
@@ -16,23 +20,23 @@ export default function FloatingChatWidget({
   onToggle
 }) {
   const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
 
   const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     if (productId) {
       setMessages([
-        {
-          sender: "disclaimer",
-          text: "This assistant is AI-powered and answers from product documentation only. Always verify critical steps against the physical product insert. For safety or clinical decisions, contact Cellogen directly."
-        },
-        {
-          sender: "bot",
-          text: `Hello! I'm ready to answer your questions about ${productName || "this product"}.`
-        }
+        makeMessage("disclaimer",
+          "This assistant is AI-powered and answers from product documentation only. " +
+          "Always verify critical steps against the physical product insert. " +
+          "For safety or clinical decisions, contact Cellogen directly."
+        ),
+        makeMessage("bot",
+          `Hello! I'm ready to answer your questions about ${productName || "this product"}.`
+        )
       ]);
     }
   }, [productId, productName]);
@@ -45,12 +49,13 @@ export default function FloatingChatWidget({
     const trimmed = text.trim();
     if (!trimmed || isLoading) return;
 
-    setMessages(prev => [...prev, { sender: "user", text: trimmed }]);
+    setMessages(prev => [...prev, makeMessage("user", trimmed)]);
+    setInputValue("");
 
     if (!productId) {
       setMessages(prev => [
         ...prev,
-        { sender: "bot", text: "Please scan the QR code from your kit." }
+        makeMessage("bot", "Please scan the QR code from your kit.")
       ]);
       return;
     }
@@ -60,13 +65,18 @@ export default function FloatingChatWidget({
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
     try {
+      // Only include actual conversation turns — exclude disclaimer messages
+      const conversationHistory = messages
+        .filter(m => m.sender === "user" || m.sender === "bot")
+        .slice(-6);
+
       const response = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_id: productId,
           question: trimmed,
-          history: messages.slice(-6)
+          history: conversationHistory
         }),
         signal: controller.signal
       });
@@ -76,11 +86,11 @@ export default function FloatingChatWidget({
       if (data.status === "no_knowledge_base") {
         setMessages(prev => [
           ...prev,
-          {
-            sender: "bot",
-            text: "Product documentation for this kit has not been uploaded yet. Please reach out to Cellogen for assistance.",
-            showEscalation: true
-          }
+          makeMessage("bot",
+            "Product documentation for this kit has not been uploaded yet. " +
+            "Please reach out to Cellogen for assistance.",
+            { showEscalation: true }
+          )
         ]);
         return;
       }
@@ -88,13 +98,13 @@ export default function FloatingChatWidget({
       const reply = data.reply || "No response received.";
       setMessages(prev => [
         ...prev,
-        { sender: "bot", text: reply, showEscalation: isFallbackReply(reply) }
+        makeMessage("bot", reply, { showEscalation: isFallbackReply(reply) })
       ]);
     } catch (err) {
       const msg = err.name === "AbortError"
-        ? "⚠️ Request timed out. Please try again."
-        : "⚠️ Server error. Try again.";
-      setMessages(prev => [...prev, { sender: "bot", text: msg }]);
+        ? "Request timed out. Please try again."
+        : "Server error. Try again.";
+      setMessages(prev => [...prev, makeMessage("bot", msg)]);
     } finally {
       clearTimeout(timeoutId);
       setIsLoading(false);
@@ -103,28 +113,26 @@ export default function FloatingChatWidget({
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !isLoading) {
-      sendMessage(e.target.value);
-      e.target.value = "";
+      sendMessage(inputValue);
     }
   };
 
   const handleSendClick = () => {
-    if (inputRef.current && !isLoading) {
-      sendMessage(inputRef.current.value);
-      inputRef.current.value = "";
+    if (!isLoading) {
+      sendMessage(inputValue);
     }
   };
 
   return (
     <>
-      {/* Overlay — always mounted, display controls visibility */}
+      {/* Overlay */}
       <div
         className="chat-overlay"
         onClick={onClose}
         style={{ display: isOpen ? "block" : "none" }}
       />
 
-      {/* Chat widget — always mounted, display controls visibility */}
+      {/* Chat widget */}
       <div
         className="chat-widget"
         style={{ display: isOpen ? "flex" : "none" }}
@@ -132,7 +140,7 @@ export default function FloatingChatWidget({
         {/* Header */}
         <div className="chat-header">
           <div className="chat-header-left">
-            <div className="chat-avatar">🤖</div>
+            <div className="chat-avatar">AI</div>
             <div className="chat-header-info">
               <span className="chat-header-title">
                 {productName || "QC Kit Assistant"}
@@ -148,14 +156,14 @@ export default function FloatingChatWidget({
 
         {/* Messages body */}
         <div className="chat-body">
-          {messages.map((msg, index) => (
+          {messages.map((msg) => (
             msg.sender === "disclaimer" ? (
-              <div key={index} className="chat-disclaimer">
+              <div key={msg.id} className="chat-disclaimer">
                 <span className="chat-disclaimer-icon">⚠️</span>
                 {msg.text}
               </div>
             ) : (
-              <div key={index} className={`chat-row ${msg.sender}`}>
+              <div key={msg.id} className={`chat-row ${msg.sender}`}>
                 {msg.sender === "bot" && (
                   <div className="chat-bot-icon">AI</div>
                 )}
@@ -208,8 +216,9 @@ export default function FloatingChatWidget({
         <div className="chat-input-wrapper">
           <div className="chat-input">
             <input
-              ref={inputRef}
               type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
               placeholder={
                 isLoading
                   ? "Waiting for response..."
@@ -226,7 +235,7 @@ export default function FloatingChatWidget({
         </div>
       </div>
 
-      {/* Floating toggle — always mounted, display controls visibility */}
+      {/* Floating toggle */}
       <button
         className="chat-toggle"
         onClick={onToggle}
